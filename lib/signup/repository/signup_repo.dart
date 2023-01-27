@@ -3,23 +3,29 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:uuid/uuid.dart';
 
 class SignupRepo {
-  Future<void> createUser(String Name, String Email, BuildContext context,
-      String PhoneNumber, String Password) async {
-    final _auth = FirebaseAuth.instance;
+  final _auth = FirebaseAuth.instance;
     final CollectionReference userRef =
-        FirebaseFirestore.instance.collection('usercollection');
+        FirebaseFirestore.instance.collection('sellercollection');
+  Future<void> createUser(String name, String email, BuildContext context,
+      String phoneNumber, String password) async {
+    
+   
     try {
       final userCredential = await _auth.createUserWithEmailAndPassword(
-        email: Email,
-        password: Password,
+        email: email,
+        password: password,
       );
       await userRef.doc(userCredential.user!.uid).set({
-        'Username': Name,
-        'Email': Email,
-        'Phone': PhoneNumber,
-        'Password': Password
+        'username': name,
+        'email': email,
+        'phone': phoneNumber,
+        'password': password,
+        'user_id': _auth.currentUser!.uid,
+        'profile_photo': "",
+        'type': 'seller'
       });
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => LoginPage()));
@@ -27,5 +33,10 @@ class SignupRepo {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(e.code)));
     }
+  }
+  void updateDetails(String user_id, String name, String email, String description, String phoneNumber, String password) {
+    userRef
+        .doc(user_id)
+        .update({'username': name, 'email': email, 'phone': phoneNumber,'password': password,});
   }
 }
